@@ -112,7 +112,7 @@ int main(void)
 
 //int i;
 HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_8);
-HAL_Delay(100);
+HAL_Delay(1000);
 HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_9);
 HAL_Delay(100);
 HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_10);
