@@ -39,6 +39,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f3xx_hal.h"
+#include "dac.h"
 #include "i2c.h"
 #include "spi.h"
 #include "usb.h"
@@ -99,6 +100,7 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI1_Init();
   MX_USB_PCD_Init();
+  MX_DAC_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -110,25 +112,8 @@ int main(void)
 
   /* USER CODE END WHILE */
 
-//int i;
-HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_8);
-HAL_Delay(100);
-HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_9);
-HAL_Delay(100);
-HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_10);
-HAL_Delay(100);
-HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_11);
-HAL_Delay(100);
-HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_12);
-HAL_Delay(100);
-HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_13);
-HAL_Delay(100);
-HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_14);
-HAL_Delay(100);
-HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_15);
-HAL_Delay(100);
   /* USER CODE BEGIN 3 */
-//for(i=0;i<1000000;i++);
+
   }
   /* USER CODE END 3 */
 
