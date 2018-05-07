@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : I2C.c
+  * File Name          : TIM.c
   * Description        : This file provides code for the configuration
-  *                      of the I2C instances.
+  *                      of the TIM instances.
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -38,99 +38,113 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#include "i2c.h"
-
-#include "gpio.h"
+#include "tim.h"
 
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
 
-I2C_HandleTypeDef hi2c1;
+TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim7;
 
-/* I2C1 init function */
-void MX_I2C1_Init(void)
+/* TIM6 init function */
+void MX_TIM6_Init(void)
 {
+  TIM_MasterConfigTypeDef sMasterConfig;
 
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x2000090E;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  htim6.Instance = TIM6;
+  htim6.Init.Prescaler = 0;
+  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim6.Init.Period = 3;
+  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure Analogue filter 
-    */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure Digital filter 
-    */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+}
+/* TIM7 init function */
+void MX_TIM7_Init(void)
+{
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 0;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 65535;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
 }
 
-void HAL_I2C_MspInit(I2C_HandleTypeDef* i2cHandle)
+void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct;
-  if(i2cHandle->Instance==I2C1)
+  if(tim_baseHandle->Instance==TIM6)
   {
-  /* USER CODE BEGIN I2C1_MspInit 0 */
+  /* USER CODE BEGIN TIM6_MspInit 0 */
 
-  /* USER CODE END I2C1_MspInit 0 */
-  
-    /**I2C1 GPIO Configuration    
-    PB6     ------> I2C1_SCL
-    PB7     ------> I2C1_SDA 
-    */
-    GPIO_InitStruct.Pin = I2C1_SCL_Pin|I2C1_SDA_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  /* USER CODE END TIM6_MspInit 0 */
+    /* TIM6 clock enable */
+    __HAL_RCC_TIM6_CLK_ENABLE();
+  /* USER CODE BEGIN TIM6_MspInit 1 */
 
-    /* I2C1 clock enable */
-    __HAL_RCC_I2C1_CLK_ENABLE();
-  /* USER CODE BEGIN I2C1_MspInit 1 */
+  /* USER CODE END TIM6_MspInit 1 */
+  }
+  else if(tim_baseHandle->Instance==TIM7)
+  {
+  /* USER CODE BEGIN TIM7_MspInit 0 */
 
-  /* USER CODE END I2C1_MspInit 1 */
+  /* USER CODE END TIM7_MspInit 0 */
+    /* TIM7 clock enable */
+    __HAL_RCC_TIM7_CLK_ENABLE();
+  /* USER CODE BEGIN TIM7_MspInit 1 */
+
+  /* USER CODE END TIM7_MspInit 1 */
   }
 }
 
-void HAL_I2C_MspDeInit(I2C_HandleTypeDef* i2cHandle)
+void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 {
 
-  if(i2cHandle->Instance==I2C1)
+  if(tim_baseHandle->Instance==TIM6)
   {
-  /* USER CODE BEGIN I2C1_MspDeInit 0 */
+  /* USER CODE BEGIN TIM6_MspDeInit 0 */
 
-  /* USER CODE END I2C1_MspDeInit 0 */
+  /* USER CODE END TIM6_MspDeInit 0 */
     /* Peripheral clock disable */
-    __HAL_RCC_I2C1_CLK_DISABLE();
-  
-    /**I2C1 GPIO Configuration    
-    PB6     ------> I2C1_SCL
-    PB7     ------> I2C1_SDA 
-    */
-    HAL_GPIO_DeInit(GPIOB, I2C1_SCL_Pin|I2C1_SDA_Pin);
+    __HAL_RCC_TIM6_CLK_DISABLE();
+  /* USER CODE BEGIN TIM6_MspDeInit 1 */
 
-  /* USER CODE BEGIN I2C1_MspDeInit 1 */
+  /* USER CODE END TIM6_MspDeInit 1 */
+  }
+  else if(tim_baseHandle->Instance==TIM7)
+  {
+  /* USER CODE BEGIN TIM7_MspDeInit 0 */
 
-  /* USER CODE END I2C1_MspDeInit 1 */
+  /* USER CODE END TIM7_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_TIM7_CLK_DISABLE();
+  /* USER CODE BEGIN TIM7_MspDeInit 1 */
+
+  /* USER CODE END TIM7_MspDeInit 1 */
   }
 } 
 

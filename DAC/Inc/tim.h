@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * File Name          : USB.h
+  * File Name          : TIM.h
   * Description        : This file provides code for the configuration
-  *                      of the USB instances.
+  *                      of the TIM instances.
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
@@ -37,8 +37,8 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __usb_H
-#define __usb_H
+#ifndef __tim_H
+#define __tim_H
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -51,7 +51,8 @@
 
 /* USER CODE END Includes */
 
-extern PCD_HandleTypeDef hpcd_USB_FS;
+extern TIM_HandleTypeDef htim6;
+extern TIM_HandleTypeDef htim7;
 
 /* USER CODE BEGIN Private defines */
 
@@ -59,7 +60,8 @@ extern PCD_HandleTypeDef hpcd_USB_FS;
 
 extern void _Error_Handler(char *, int);
 
-void MX_USB_PCD_Init(void);
+void MX_TIM6_Init(void);
+void MX_TIM7_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -68,7 +70,7 @@ void MX_USB_PCD_Init(void);
 #ifdef __cplusplus
 }
 #endif
-#endif /*__ usb_H */
+#endif /*__ tim_H */
 
 /**
   * @}

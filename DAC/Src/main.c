@@ -40,9 +40,8 @@
 #include "main.h"
 #include "stm32f3xx_hal.h"
 #include "dac.h"
-#include "i2c.h"
-#include "spi.h"
-#include "usb.h"
+#include "dma.h"
+#include "tim.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
@@ -97,10 +96,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C1_Init();
-  MX_SPI1_Init();
-  MX_USB_PCD_Init();
+  MX_DMA_Init();
   MX_DAC_Init();
+  MX_TIM6_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -108,7 +107,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 const uint16_t Sine12bit[128] = {
-                                                                            2048, 2145, 2242, 2339, 2435, 2530, 2624, 2717, 2808, 2897,
+                                      2048, 2145, 2242, 2339, 2435, 2530, 2624, 2717, 2808, 2897,
                                       2984, 3069, 3151, 3230, 3307, 3381, 3451, 3518, 3581, 3640,
                                       3696, 3748, 3795, 3838, 3877, 3911, 3941, 3966, 3986, 4002,
                                       4013, 4019, 4020, 4016, 4008, 3995, 3977, 3954, 3926, 3894,
@@ -120,12 +119,31 @@ const uint16_t Sine12bit[128] = {
                                       141, 118, 100, 87, 79, 75, 76, 82, 93, 109,
                                       129, 154, 184, 218, 257, 300, 347, 399, 455, 514,
                                       577, 644, 714, 788, 865, 944, 1026, 1111, 1198, 1287,
-                                      1378, 1471, 1565, 1660, 1756, 1853, 1950, 2047 }; 
+                                      1378, 1471, 1565, 1660, 1756, 1853, 1950, 2047 };
+const uint16_t Sine12bit_s[128] = {
+                                       1068, 985, 904, 826, 751, 679,
+                                      610, 545, 484, 426, 373, 323, 278, 237, 201, 169,
+                                      141, 118, 100, 87, 79, 75, 76, 82, 93, 109,
+                                      129, 154, 184, 218, 257, 300, 347, 399, 455, 514,
+                                      577, 644, 714, 788, 865, 944, 1026, 1111, 1198, 1287,
+                                      1378, 1471, 1565, 1660, 1756, 1853, 1950, 2047,2048, 2145, 2242, 2339, 2435, 2530, 2624, 2717, 2808, 2897,
+                                      2984, 3069, 3151, 3230, 3307, 3381, 3451, 3518, 3581, 3640,
+                                      3696, 3748, 3795, 3838, 3877, 3911, 3941, 3966, 3986, 4002,
+                                      4013, 4019, 4020, 4016, 4008, 3995, 3977, 3954, 3926, 3894,
+                                      3858, 3817, 3772, 3722, 3669, 3611, 3550, 3485, 3416, 3344,
+                                      3269, 3191, 3110, 3027, 2941, 2853, 2763, 2671, 2578, 2483,
+                                      2387, 2291, 2194, 2096, 1999, 1901, 1804, 1708, 1612, 1517,
+                                      1424, 1332, 1242, 1154 };
+
+HAL_TIM_Base_Start(&htim6);
+HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)Sine12bit, 128, DAC_ALIGN_12B_R);
+HAL_TIM_Base_Start(&htim7);
+HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
+HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)Sine12bit_s, 128, DAC_ALIGN_12B_R);
   while (1)
   {
-for (i=0;i<128;i++ ){
-          HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, Sine12bit[i]);
-          HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
+
 
   /* USER CODE END WHILE */
 
@@ -145,18 +163,16 @@ void SystemClock_Config(void)
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -171,15 +187,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB|RCC_PERIPHCLK_I2C1;
-  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
-  PeriphClkInit.USBClockSelection = RCC_USBCLKSOURCE_PLL;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
