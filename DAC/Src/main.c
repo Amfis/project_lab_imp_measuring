@@ -43,6 +43,8 @@
 #include "dma.h"
 #include "tim.h"
 #include "gpio.h"
+#define ARM_MATH_CM4
+#include<arm_math.h>
 
 /* USER CODE BEGIN Includes */
 
@@ -98,14 +100,14 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_DAC_Init();
-  MX_TIM6_Init();
-  MX_TIM7_Init();
+  MX_TIM6_Init(10);
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+/*
 const uint16_t Sine12bit[128] = {
                                       2048, 2145, 2242, 2339, 2435, 2530, 2624, 2717, 2808, 2897,
                                       2984, 3069, 3151, 3230, 3307, 3381, 3451, 3518, 3581, 3640,
@@ -135,14 +137,48 @@ const uint16_t Sine12bit_s[128] = {
                                       2387, 2291, 2194, 2096, 1999, 1901, 1804, 1708, 1612, 1517,
                                       1424, 1332, 1242, 1154 };
 
-HAL_TIM_Base_Start(&htim6);
+
+*/
+  /*
+  double x[20]={0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+  double y[20];
+  for(int i=0;i<20;i++){
+	  y[i]=(sin(x[i]*2*3.14/20)+1)*2048;
+  }
+*/
+int i=0;
+		int n = 64;
+		uint16_t y1[n], y2[n];
+
+		for (int i=0; i<=n; i++){
+		//	x[i] = i;
+			y1[i] = (sin(i*2*PI/n)+1)*2048;
+			if (y1[i] == 4096)
+				y1[i] = 4095;
+			y2[i] = (sin(i*2*PI/n+PI)+1)*2048;
+				if (y2[i] == 4096)
+					y2[i] = 4095;
+		}
+uint32_t Timing[5]={100,1000,10000,25000,65533};
 HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)Sine12bit, 128, DAC_ALIGN_12B_R);
-HAL_TIM_Base_Start(&htim7);
+HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)y1, n, DAC_ALIGN_12B_R);
 HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
-HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)Sine12bit_s, 128, DAC_ALIGN_12B_R);
+HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)y2, n, DAC_ALIGN_12B_R);
+HAL_TIM_Base_Start(&htim6);
   while (1)
   {
+	  if(HAL_GPIO_ReadPin(GPIOA,GPIO_PIN_0)==1)
+			  {
+
+		  HAL_TIM_Base_Stop(&htim6);
+		  MX_TIM6_Init(Timing[i]);
+
+		  HAL_TIM_Base_Start(&htim6);
+
+             if(++i==5)
+            	 i=0;
+             HAL_Delay(10);
+			  }
 
 
   /* USER CODE END WHILE */
