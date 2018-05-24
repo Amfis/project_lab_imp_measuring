@@ -113,7 +113,10 @@ int main(void)
   MX_ADC1_Init();
   MX_ADC2_Init();
   MX_TIM1_Init();
+
   /* USER CODE BEGIN 2 */
+  Set_DAC_Freq(15000);
+  Set_ADC_Freq(100000);
   //HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC1ConvertedValues, 2048);
 
 
@@ -123,8 +126,8 @@ int main(void)
     HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)Sine_Lut_180, NUM_SAMPLES_DAC, DAC_ALIGN_12B_R);
     HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
     HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
-   // HAL_ADCEx_MultiModeStart_DMA(&hadc1, ADC1ConvertedValues, sizeof(ADC1ConvertedValues));
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*) ADC1ConvertedValues, sizeof(ADC1ConvertedValues));
+    HAL_ADCEx_MultiModeStart_DMA(&hadc1, ADC1ConvertedValues, sizeof(ADC1ConvertedValues));
+    //HAL_ADC_Start_DMA(&hadc1, (uint32_t*) ADC1ConvertedValues, sizeof(ADC1ConvertedValues));
     HAL_TIM_Base_Start(&htim6);
     HAL_TIM_Base_Start(&htim1);
   /* USER CODE END 2 */
@@ -210,23 +213,33 @@ void Sin_Gen()
   	for (int i=0; i< NUM_SAMPLES_DAC; i++)
   	{
 
-  		Sine_Lut[i] = (0.5*sinf(((2*PI)/NUM_SAMPLES_DAC)*i)+1)*1024;
+  		Sine_Lut[i] = (0.8*cosf(((2*PI)/NUM_SAMPLES_DAC)*i)+1)*682;
 
-  		Sine_Lut_180[i] = (0.5*sinf(i*2*PI/NUM_SAMPLES_DAC+PI)+1)*1024;
+  		Sine_Lut_180[i] = (0.8*cosf(i*2*PI/NUM_SAMPLES_DAC+PI)+1)*682;
 
   	}
 
 }
 void Set_DAC_Freq(uint32_t freq)
 {
-	 uint32_t	time ;
+uint32_t	time ;
 time=(RCC_FREQ/(NUM_SAMPLES_DAC*freq))-1;
+htim6.Init.Period=time;
+if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+ {
+   _Error_Handler(__FILE__, __LINE__);
+ }
 
 }
 void Set_ADC_Freq(uint32_t freq)
 {
 	 uint32_t	time ;
 time=(RCC_FREQ/(freq))-1;
+htim1.Init.Period=time;
+if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+ {
+   _Error_Handler(__FILE__, __LINE__);
+ }
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
