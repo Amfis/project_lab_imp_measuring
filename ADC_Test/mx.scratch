@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project>
-<ProjectName>D:\Embedded LAB\New Folder\ADC_T_Ecl\\ADC_T_Ecl</ProjectName>
+<ProjectName>D:\Embedded LAB\ADC_Test\ADC_T_Ecl\\ADC_T_Ecl</ProjectName>
 <ProjectNature>C</ProjectNature> 
 <CMSIS>..\Drivers\CMSIS</CMSIS>
 <HAL_Driver>C:\Users\Kayas\STM32Cube\Repository\STM32Cube_FW_F3_V1.9.0\Drivers\CMSIS</HAL_Driver>

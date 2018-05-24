@@ -107,6 +107,8 @@
 
 /* USER CODE BEGIN Private defines */
 
+#define RCC_FREQ           72000000
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
