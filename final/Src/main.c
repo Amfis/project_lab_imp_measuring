@@ -47,8 +47,7 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#define ARM_MATH_CM4
-#include<arm_math.h>
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -63,21 +62,11 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-#define DACSAMPLE 32
-#define ADCDAMPLE 100
-void Set_DAC_Freq(uint32_t );
-void Set_ADC_Freq(uint32_t );
-void Sin_Gen(void);
-void Calc();
-uint16_t NUM_SAMPLES_DAC =DACSAMPLE;
-uint16_t NUM_SAMPLES_ADC =ADCDAMPLE;
 
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-uint32_t ADC1ConvertedValues[ADCDAMPLE];
-uint16_t Sine_Lut[DACSAMPLE], Sine_Lut_180[DACSAMPLE];
-uint16_t ADC1_VAL[ADCDAMPLE], ADC2_VAL[ADCDAMPLE];
+
 /* USER CODE END 0 */
 
 /**
@@ -97,7 +86,6 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  Sin_Gen();//Generates Sine wave
 
   /* USER CODE END Init */
 
@@ -119,31 +107,6 @@ int main(void)
   MX_OPAMP1_Init();
   MX_OPAMP3_Init();
   /* USER CODE BEGIN 2 */
-  HAL_OPAMP_Start(&hopamp1);
-  HAL_OPAMP_Start(&hopamp3);
-  Set_DAC_Freq(15000);
-  Set_ADC_Freq(100000);
-  //HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC1ConvertedValues, 2048);
-
-
-  //HAL_ADCEx_MultiModeStart_DMA(&hadc1, ADC1ConvertedValues, sizeof(ADC1ConvertedValues));
-    HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)Sine_Lut, NUM_SAMPLES_DAC, DAC_ALIGN_12B_R);
-    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)Sine_Lut_180, NUM_SAMPLES_DAC, DAC_ALIGN_12B_R);
-    HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-    HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
-    HAL_ADCEx_MultiModeStart_DMA(&hadc1, ADC1ConvertedValues, sizeof(ADC1ConvertedValues));
-    //HAL_ADC_Start_DMA(&hadc1, (uint32_t*) ADC1ConvertedValues, sizeof(ADC1ConvertedValues));
-    HAL_TIM_Base_Start(&htim6);
-    HAL_TIM_Base_Start(&htim1);
-
-
-
-    for (int i = 0;i<sizeof(ADC1ConvertedValues);i++){
-
-    }
-
-
 
   /* USER CODE END 2 */
 
@@ -222,63 +185,6 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-void Sin_Gen()
-{
-
-  	for (int i=0; i< NUM_SAMPLES_DAC; i++)
-  	{
-
-  		Sine_Lut[i] = (0.8*cosf(((2*PI)/NUM_SAMPLES_DAC)*i)+1)*682;
-
-  		Sine_Lut_180[i] = (0.8*cosf(i*2*PI/NUM_SAMPLES_DAC+PI)+1)*682;
-
-  	}
-
-}
-void Calc()
-{
-for(int i=0;i<ADCDAMPLE;i++)
-{
-	ADC1_VAL[i]=ADC1ConvertedValues[i]&0xffff;
-	ADC2_VAL[i]=ADC1ConvertedValues[i]>>16;
-
-}
-
-}
-void Set_DAC_Freq(uint32_t freq)
-{
-uint32_t	time ;
-time=(RCC_FREQ/(NUM_SAMPLES_DAC*freq))-1;
-htim6.Init.Period=time;
-if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
- {
-   _Error_Handler(__FILE__, __LINE__);
- }
-
-}
-void Set_ADC_Freq(uint32_t freq)
-{
-	 uint32_t	time ;
-time=(RCC_FREQ/(freq))-1;
-htim1.Init.Period=time;
-if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
- {
-   _Error_Handler(__FILE__, __LINE__);
- }
-}
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
-{
-  /* Prevent unused argument(s) compilation warning */
-  UNUSED(hadc);
-  if(hadc->Instance==ADC1)
-   {
-	 HAL_ADC_Stop_DMA(&hadc1);
-	 Calc();
-   }
-  /* NOTE : This function should not be modified. When the callback is needed,
-            function HAL_ADC_ConvCpltCallback must be implemented in the user file.
-   */
-}
 /* USER CODE END 4 */
 
 /**
