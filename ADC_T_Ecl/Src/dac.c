@@ -49,7 +49,6 @@
 
 DAC_HandleTypeDef hdac;
 DMA_HandleTypeDef hdma_dac_ch1;
-DMA_HandleTypeDef hdma_dac_ch2;
 
 /* DAC init function */
 void MX_DAC_Init(void)
@@ -73,13 +72,6 @@ void MX_DAC_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**DAC channel OUT2 config 
-    */
-  if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_2) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
 }
 
 void HAL_DAC_MspInit(DAC_HandleTypeDef* dacHandle)
@@ -95,10 +87,9 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* dacHandle)
     __HAL_RCC_DAC1_CLK_ENABLE();
   
     /**DAC GPIO Configuration    
-    PA4     ------> DAC_OUT1
-    PA5     ------> DAC_OUT2 
+    PA4     ------> DAC_OUT1 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
+    GPIO_InitStruct.Pin = GPIO_PIN_4;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -122,24 +113,6 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* dacHandle)
 
     __HAL_LINKDMA(dacHandle,DMA_Handle1,hdma_dac_ch1);
 
-    /* DAC_CH2 Init */
-    hdma_dac_ch2.Instance = DMA1_Channel4;
-    hdma_dac_ch2.Init.Direction = DMA_MEMORY_TO_PERIPH;
-    hdma_dac_ch2.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_dac_ch2.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_dac_ch2.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-    hdma_dac_ch2.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-    hdma_dac_ch2.Init.Mode = DMA_CIRCULAR;
-    hdma_dac_ch2.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_dac_ch2) != HAL_OK)
-    {
-      _Error_Handler(__FILE__, __LINE__);
-    }
-
-    __HAL_DMA_REMAP_CHANNEL_ENABLE(HAL_REMAPDMA_TIM7_DAC1_CH2_DMA1_CH4);
-
-    __HAL_LINKDMA(dacHandle,DMA_Handle2,hdma_dac_ch2);
-
   /* USER CODE BEGIN DAC_MspInit 1 */
 
   /* USER CODE END DAC_MspInit 1 */
@@ -158,14 +131,12 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* dacHandle)
     __HAL_RCC_DAC1_CLK_DISABLE();
   
     /**DAC GPIO Configuration    
-    PA4     ------> DAC_OUT1
-    PA5     ------> DAC_OUT2 
+    PA4     ------> DAC_OUT1 
     */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4|GPIO_PIN_5);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4);
 
     /* DAC DMA DeInit */
     HAL_DMA_DeInit(dacHandle->DMA_Handle1);
-    HAL_DMA_DeInit(dacHandle->DMA_Handle2);
   /* USER CODE BEGIN DAC_MspDeInit 1 */
 
   /* USER CODE END DAC_MspDeInit 1 */

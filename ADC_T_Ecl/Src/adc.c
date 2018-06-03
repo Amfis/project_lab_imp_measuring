@@ -40,7 +40,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "adc.h"
 
-#include "gpio.h"
 #include "dma.h"
 
 /* USER CODE BEGIN 0 */
@@ -90,7 +89,7 @@ void MX_ADC1_Init(void)
 
     /**Configure Regular Channel 
     */
-  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
@@ -146,7 +145,6 @@ static uint32_t HAL_RCC_ADC12_CLK_ENABLED=0;
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 {
 
-  GPIO_InitTypeDef GPIO_InitStruct;
   if(adcHandle->Instance==ADC1)
   {
   /* USER CODE BEGIN ADC1_MspInit 0 */
@@ -158,14 +156,6 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
       __HAL_RCC_ADC12_CLK_ENABLE();
     }
   
-    /**ADC1 GPIO Configuration    
-    PA0     ------> ADC1_IN1 
-    */
-    GPIO_InitStruct.Pin = GPIO_PIN_0;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
     /* ADC1 DMA Init */
     /* ADC1 Init */
     hdma_adc1.Instance = DMA1_Channel1;
@@ -200,14 +190,6 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     if(HAL_RCC_ADC12_CLK_ENABLED==1){
       __HAL_RCC_ADC12_CLK_ENABLE();
     }
-  
-    /**ADC2 GPIO Configuration    
-    PA6     ------> ADC2_IN3 
-    */
-    GPIO_InitStruct.Pin = GPIO_PIN_6;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* ADC2 interrupt Init */
     HAL_NVIC_SetPriority(ADC1_2_IRQn, 0, 0);
@@ -232,11 +214,6 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     *  if(HAL_RCC_ADC12_CLK_ENABLED==0){
     *    __HAL_RCC_ADC12_CLK_DISABLE();
     **/
-  
-    /**ADC1 GPIO Configuration    
-    PA0     ------> ADC1_IN1 
-    */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0);
 
     /* ADC1 DMA DeInit */
     HAL_DMA_DeInit(adcHandle->DMA_Handle);
@@ -265,11 +242,6 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     *  if(HAL_RCC_ADC12_CLK_ENABLED==0){
     *    __HAL_RCC_ADC12_CLK_DISABLE();
     **/
-  
-    /**ADC2 GPIO Configuration    
-    PA6     ------> ADC2_IN3 
-    */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_6);
 
     /* ADC2 interrupt Deinit */
   /* USER CODE BEGIN ADC2:ADC1_2_IRQn disable */

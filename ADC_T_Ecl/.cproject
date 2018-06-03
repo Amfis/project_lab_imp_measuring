@@ -40,11 +40,11 @@
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include" />
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1066452842" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									
-									
+									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))" />
+									<listOptionValue builtIn="false" value="__packed=__attribute__((__packed__))" />
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER" />
 									<listOptionValue builtIn="false" value="STM32F303xC" />
-								<listOptionValue builtIn="false" value="__weak=&quot;__attribute__((weak))&quot;" /><listOptionValue builtIn="false" value="__packed=&quot;__attribute__((__packed__))&quot;" /></option>
+								</option>
 								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.misc.other.1640023988" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.misc.other" value="-fmessage-length=0" valueType="string" />
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.950971275" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c" />
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.1829376861" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s" />
@@ -60,11 +60,11 @@
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include" />
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.934541944" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
-									
-									
+									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))" />
+									<listOptionValue builtIn="false" value="__packed=__attribute__((__packed__))" />
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER" />
 									<listOptionValue builtIn="false" value="STM32F303xC" />
-								<listOptionValue builtIn="false" value="__weak=&quot;__attribute__((weak))&quot;" /><listOptionValue builtIn="false" value="__packed=&quot;__attribute__((__packed__))&quot;" /></option>
+								</option>
 								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other.256851746" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other" value="-fmessage-length=0" valueType="string" />
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.206508693" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp" />
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s.2040843203" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s" />
@@ -147,11 +147,11 @@
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include" />
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1066452842" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									
-									
+									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))" />
+									<listOptionValue builtIn="false" value="__packed=__attribute__((__packed__))" />
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER" />
 									<listOptionValue builtIn="false" value="STM32F303xC" />
-								<listOptionValue builtIn="false" value="__weak=&quot;__attribute__((weak))&quot;" /><listOptionValue builtIn="false" value="__packed=&quot;__attribute__((__packed__))&quot;" /></option>
+								</option>
 								<option id="fr.ac6.managedbuild.gnu.c.compiler.option.misc.other.1640023988" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-fmessage-length=0" valueType="string" />
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.950971275" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c" />
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s.1829376861" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.s" />
@@ -167,11 +167,11 @@
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include" />
 								</option>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.symbols.1414639044" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
-									
-									
+									<listOptionValue builtIn="false" value="__weak=__attribute__((weak))" />
+									<listOptionValue builtIn="false" value="__packed=__attribute__((__packed__))" />
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER" />
 									<listOptionValue builtIn="false" value="STM32F303xC" />
-								<listOptionValue builtIn="false" value="__weak=&quot;__attribute__((weak))&quot;" /><listOptionValue builtIn="false" value="__packed=&quot;__attribute__((__packed__))&quot;" /></option>
+								</option>
 								<option id="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other.256851746" superClass="fr.ac6.managedbuild.gnu.cpp.compiler.option.misc.other" useByScannerDiscovery="false" value="-fmessage-length=0" valueType="string" />
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp.206508693" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.cpp" />
 								<inputType id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s.2040843203" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.input.s" />

@@ -52,7 +52,7 @@
 /* USER CODE END Includes */
 
 extern OPAMP_HandleTypeDef hopamp1;
-extern OPAMP_HandleTypeDef hopamp3;
+extern OPAMP_HandleTypeDef hopamp2;
 
 /* USER CODE BEGIN Private defines */
 
@@ -61,7 +61,7 @@ extern OPAMP_HandleTypeDef hopamp3;
 extern void _Error_Handler(char *, int);
 
 void MX_OPAMP1_Init(void);
-void MX_OPAMP3_Init(void);
+void MX_OPAMP2_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
