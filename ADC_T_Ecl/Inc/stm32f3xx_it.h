@@ -50,7 +50,7 @@
 void SysTick_Handler(void);
 void DMA1_Channel1_IRQHandler(void);
 void DMA1_Channel3_IRQHandler(void);
-void ADC1_2_IRQHandler(void);
+void DMA2_Channel1_IRQHandler(void);
 
 #ifdef __cplusplus
 }
