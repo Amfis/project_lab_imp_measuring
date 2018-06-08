@@ -42,7 +42,6 @@
 #include "adc.h"
 #include "dac.h"
 #include "dma.h"
-#include "opamp.h"
 #include "tim.h"
 #include "gpio.h"
 
@@ -118,31 +117,23 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  Sin_Gen();
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_DAC_Init();
   MX_TIM6_Init();
-  MX_TIM1_Init();
-  MX_OPAMP1_Init();
   MX_ADC1_Init();
-  MX_OPAMP3_Init();
   MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
   Set_DAC_Freq(FREQ);
-
-
-
-  HAL_OPAMP_Start(&hopamp1);
-  HAL_OPAMP_Start(&hopamp3);
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)Sine_Lut, NUM_SAMPLES_DAC, DAC_ALIGN_12B_R);
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
   HAL_ADCEx_MultiModeStart_DMA(&hadc1, ADC1ConvertedValues, (sizeof(ADC1ConvertedValues)));
   HAL_TIM_Base_Start(&htim6);
-  HAL_TIM_Base_Start(&htim1);
+
   /* USER CODE END 2 */
 
+  /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
@@ -196,9 +187,8 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_TIM1|RCC_PERIPHCLK_ADC12;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
-  PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
