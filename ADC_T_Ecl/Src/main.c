@@ -66,10 +66,9 @@ void SystemClock_Config(void);
 /* Private function prototypes -----------------------------------------------*/
 #define DACSAMPLE 32
 #define ADCSAMPLE 320
-#define FREQ 10000
+#define FREQ 165000 //Frequency for signal
 
 void Set_DAC_Freq(uint32_t );
-void Set_ADC_Freq(uint32_t );
 void Sin_Gen(void);
 uint16_t NUM_SAMPLES_DAC =DACSAMPLE;
 uint16_t NUM_SAMPLES_ADC =ADCSAMPLE;
@@ -79,15 +78,14 @@ uint32_t frequen[5]={10000,25000,50000,75000,100000};
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-uint32_t ADC1ConvertedValues[ADCSAMPLE],ADC1ConvertedValues1[ADCSAMPLE];
-uint16_t Sine_Lut[DACSAMPLE], Sine_Lut_180[DACSAMPLE];
+uint32_t ADC1ConvertedValues[ADCSAMPLE];
+uint16_t Sine_Lut[DACSAMPLE];
 uint16_t  Voltage_val[ADCSAMPLE], Current_val[ADCSAMPLE];
 uint32_t  FFT_Data[ADCSAMPLE];
-float X_Real_V[ADCSAMPLE] , X_Imag_V[ADCSAMPLE],X_Real_C[ADCSAMPLE] , X_Imag_C[ADCSAMPLE],Phase_V[ADCSAMPLE],Abs_C[ADCSAMPLE],Abs_V[ADCSAMPLE];
-float Imp[ADCSAMPLE]={0},impe_freq[5];
-arm_rfft_instance_q31 * S;
+float X_Real_V , X_Imag_V,X_Real_C , X_Imag_C,Phase_V,Abs_C,Abs_V;
+float Imp=0,impe_freq[5];
 void calc();
-void fft();
+void DFT();
  volatile int busy=0,flag=0;
 /* USER CODE END 0 */
 
@@ -108,7 +106,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  Sin_Gen();//Generates Sine wave
+//Generates Sine wave
 
   /* USER CODE END Init */
 
@@ -120,40 +118,31 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  Sin_Gen();
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_DAC_Init();
   MX_TIM6_Init();
   MX_TIM1_Init();
   MX_OPAMP1_Init();
+  MX_ADC1_Init();
   MX_OPAMP3_Init();
   MX_ADC2_Init();
-  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   Set_DAC_Freq(FREQ);
 
-  Set_ADC_Freq(5*FREQ);
-  //HAL_ADC_Start_DMA(&hadc1, (uint32_t*)ADC1ConvertedValues, 2048);
 
 
-  //HAL_ADCEx_MultiModeStart_DMA(&hadc1, ADC1ConvertedValues, sizeof(ADC1ConvertedValues));
   HAL_OPAMP_Start(&hopamp1);
   HAL_OPAMP_Start(&hopamp3);
-    HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-    HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)Sine_Lut, NUM_SAMPLES_DAC, DAC_ALIGN_12B_R);
-    //HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*)Sine_Lut_180, NUM_SAMPLES_DAC, DAC_ALIGN_12B_R);
-   // HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-   // HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
-//   HAL_ADC_Start_DMA(&hadc2, (uint32_t*) ADC1ConvertedValues1, sizeof(ADC1ConvertedValues1));
-  //  HAL_ADC_Start_DMA(&hadc2, (uint32_t*) ADC1ConvertedValues1, sizeof(ADC1ConvertedValues));
-    HAL_ADCEx_MultiModeStart_DMA(&hadc1, ADC1ConvertedValues, (sizeof(ADC1ConvertedValues)));
-
-
-    HAL_TIM_Base_Start(&htim6);
-    HAL_TIM_Base_Start(&htim1);
+  HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)Sine_Lut, NUM_SAMPLES_DAC, DAC_ALIGN_12B_R);
+  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+  HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
+  HAL_ADCEx_MultiModeStart_DMA(&hadc1, ADC1ConvertedValues, (sizeof(ADC1ConvertedValues)));
+  HAL_TIM_Base_Start(&htim6);
+  HAL_TIM_Base_Start(&htim1);
   /* USER CODE END 2 */
 
-  /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
@@ -228,70 +217,61 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+/*
+ * This Function Generates Sine Signal
+ *
+ *
+ */
 void Sin_Gen()
 {
 
   	for (int i=0; i< NUM_SAMPLES_DAC; i++)
   	{
 
-  		Sine_Lut[i] = (0.8*cosf(((2*PI)/NUM_SAMPLES_DAC)*i)+1)*682;
+  		Sine_Lut[i] = (0.7*cosf(((2*PI)/NUM_SAMPLES_DAC)*i)+1)*1024;
 
-  		//Sine_Lut_180[i] = (0.8*cosf(i*2*PI/NUM_SAMPLES_DAC+PI)+1)*682;
 
   	}
 
 }
+
+/*
+ * This Function sets DAC signal frequency by setting appropriate value in counter
+ *
+ *
+ */
 void Set_DAC_Freq(uint32_t freq)
 {
-uint32_t	time ;
-time=(RCC_FREQ/(NUM_SAMPLES_DAC*freq))-1;
-MX_TIM6_Init();
-htim6.Init.Period=time;
-if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
- {
-   _Error_Handler(__FILE__, __LINE__);
- }
+	uint32_t	time ;
+	time=(RCC_FREQ/(NUM_SAMPLES_DAC*freq))-1;
+	MX_TIM6_Init();
+	htim6.Init.Period=time;
+	if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+	{
+		_Error_Handler(__FILE__, __LINE__);
+	}
 
 }
-void Set_ADC_Freq(uint32_t freq)
-{
-	 uint32_t	time ;
-time=(RCC_FREQ/(freq))-1;
-htim1.Init.Period=time;
-if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
- {
-   _Error_Handler(__FILE__, __LINE__);
- }
-}
+
+
 int h=0;
+/*
+ * Callback function after finishing sampling of ADC
+ *  */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
-  /* Prevent unused argument(s) compilation warning */
-//  UNUSED(hadc);
+
   if(hadc->Instance==ADC1)
    {
 
-//	  HAL_TIM_Base_Stop(&htim6);
-if(h==10){
 
-//if(no<5){
-		calc();
-		//HAL_TIM_Base_Stop(&htim6);
-	HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_8);
-
-//		impe_freq[no]=Imp[10];
-//		no++;
-	//	Set_DAC_Freq(frequen[no]);
-	//	 HAL_TIM_Base_Start(&htim6);
-	h=0;
-//}
-
-
-
-
-   }
-h++;
+        if(h==5)
+        {
+        	calc();
+	        HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_8);
+         	h=0;
+         }
+   h++;
    }
 }
 //}
@@ -302,54 +282,57 @@ h++;
 
 
 
-
+/*
+ * This function separates ADC1 and ADC2 values
+ */
 void calc(){
-if (busy==1)
-{
-	return;}
-busy=1;
+    if (busy==1)
+    {
+	    return;
+    }
+    busy=1;
 
-for(int i=0;i<ADCSAMPLE;i++)
-{
-	Voltage_val[i]=ADC1ConvertedValues[i]&0xffff;
-    Current_val[i]=(ADC1ConvertedValues[i]&0xffff0000)>>16;
+    for(int i=0;i<ADCSAMPLE;i++)
+    {
+	    Voltage_val[i]=ADC1ConvertedValues[i]&0xffff;
+        Current_val[i]=(ADC1ConvertedValues[i]&0xffff0000)>>16;
 
-}
-fft();
-
-}
+    }
+    DFT();
+    }
 
 uint32_t N=ADCSAMPLE;
-void fft()
-{
-	for(int k=0;k<N/2;k++)
-	 {
-	  X_Real_V[k] = X_Imag_V[k]=0.0;
-	  X_Real_C[k] = X_Imag_C[k]=0.0;
 
-	    for(int n=0;n<N;n++)
+/*
+ * Only calculating DFT for 10th BIN ie k=10, as it is our desired frequency
+ */
+void DFT()
+{
+
+	    X_Real_V = X_Imag_V=0.0;
+	    X_Real_C = X_Imag_C=0.0;
+
+	    for(int n=0;n<ADCSAMPLE;n++)
 	     {
-	       X_Real_V[k]+=Voltage_val[n]*cos((2*PI*k*(n))/N);
-	       X_Imag_V[k]+=Voltage_val[n]*sin((2*PI*k*(n))/N);
-	       X_Real_C[k]+=Current_val[n]*cos((2*PI*k*(n))/N);
-	       X_Imag_C[k]+=Current_val[n]*sin((2*PI*k*(n))/N);
+	       X_Real_V+=Voltage_val[n]*cos((2*PI*10*(n))/ADCSAMPLE);
+	       X_Imag_V+=Voltage_val[n]*sin((2*PI*10*(n))/ADCSAMPLE);
+	       X_Real_C+=Current_val[n]*cos((2*PI*10*(n))/ADCSAMPLE);
+	       X_Imag_C+=Current_val[n]*sin((2*PI*10*(n))/ADCSAMPLE);
 
 	     }
-	    X_Imag_V[k]=(2*X_Imag_V[k]/N)*U0/4095;
-	    X_Real_C[k]=(2*X_Real_C[k]/N)*U0/4095;
-	    X_Real_V[k]=(2*X_Real_V[k]/N)*U0/4095;
-	    X_Imag_C[k]=(2*X_Imag_C[k]/N)*U0/4095;
-	    X_Imag_V[k]=X_Imag_V[k]*(-1.0);
-	     X_Imag_C[k]=X_Imag_C[k]*(-1.0);
-	     Abs_V[k]=sqrt((X_Imag_V[k]*X_Imag_V[k])+(X_Real_V[k]*X_Real_V[k]));
-	     Abs_V[k]=Abs_V[k]>0.1?Abs_V[k]:0;
-	   	Abs_C[k]=sqrt((X_Imag_C[k]*X_Imag_C[k])+(X_Real_C[k]*X_Real_C[k]));
-	   	Abs_C[k]=Abs_C[k]>0.1?Abs_C[k]:0.01;
-	   	Imp[k]=(Abs_V[k]/Abs_C[k])*900;
-busy=0;
-flag=0;
+	    X_Imag_V=(2*X_Imag_V/ADCSAMPLE)*U0/4095;
+	    X_Real_C=(2*X_Real_C/ADCSAMPLE)*U0/4095;
+	    X_Real_V=(2*X_Real_V/ADCSAMPLE)*U0/4095;
+	    X_Imag_C=(2*X_Imag_C/ADCSAMPLE)*U0/4095;
+	    X_Imag_V=X_Imag_V*(-1.0);
+	    X_Imag_C=X_Imag_C*(-1.0);
+	    Abs_V=sqrt((X_Imag_V*X_Imag_V)+(X_Real_V*X_Real_V));
+	    Abs_C=sqrt((X_Imag_C*X_Imag_C)+(X_Real_C*X_Real_C));
+        Imp=(Abs_V/Abs_C)*900;
+        busy=0;
+        flag=0;
 
-	 }
+
 
 
 }
