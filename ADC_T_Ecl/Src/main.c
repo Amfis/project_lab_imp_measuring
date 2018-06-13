@@ -124,6 +124,7 @@ int main(void)
   MX_ADC1_Init();
   MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
+  Sin_Gen();
   Set_DAC_Freq(FREQ);
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)Sine_Lut, NUM_SAMPLES_DAC, DAC_ALIGN_12B_R);
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
@@ -214,15 +215,11 @@ void SystemClock_Config(void)
  */
 void Sin_Gen()
 {
-
+	//gernerate LUT
   	for (int i=0; i< NUM_SAMPLES_DAC; i++)
   	{
-
   		Sine_Lut[i] = (0.7*cosf(((2*PI)/NUM_SAMPLES_DAC)*i)+1)*1024;
-
-
   	}
-
 }
 
 /*
@@ -232,10 +229,15 @@ void Sin_Gen()
  */
 void Set_DAC_Freq(uint32_t freq)
 {
-	uint32_t	time ;
-	time=(RCC_FREQ/(NUM_SAMPLES_DAC*freq))-1;
+	uint32_t	CP;
+
+	//calculating the Counter Period for specific frequency
+	CP=(RCC_FREQ/(NUM_SAMPLES_DAC*freq))-1;
+
+	//setting Counter Period
 	MX_TIM6_Init();
-	htim6.Init.Period=time;
+	htim6.Init.Period=CP;
+
 	if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
 	{
 		_Error_Handler(__FILE__, __LINE__);
@@ -258,13 +260,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
         if(h==5)
         {
         	calc();
-	        HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_8);
+	        HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_8);	//LED shows calculation are done
          	h=0;
          }
    h++;
    }
 }
-//}
 
   /* NOTE : This function should not be modified. When the callback is needed,
             function HAL_ADC_ConvCpltCallback must be implemented in the user file.
@@ -282,6 +283,7 @@ void calc(){
     }
     busy=1;
 
+    //separating values of the two ADCs
     for(int i=0;i<ADCSAMPLE;i++)
     {
 	    Voltage_val[i]=ADC1ConvertedValues[i]&0xffff;
@@ -302,6 +304,7 @@ void DFT()
 	    X_Real_V = X_Imag_V=0.0;
 	    X_Real_C = X_Imag_C=0.0;
 
+	    //calculating DFT
 	    for(int n=0;n<ADCSAMPLE;n++)
 	     {
 	       X_Real_V+=Voltage_val[n]*cos((2*PI*10*(n))/ADCSAMPLE);
@@ -310,20 +313,26 @@ void DFT()
 	       X_Imag_C+=Current_val[n]*sin((2*PI*10*(n))/ADCSAMPLE);
 
 	     }
+
+	    //getitng average imaginary and reaal Voltage
 	    X_Imag_V=(2*X_Imag_V/ADCSAMPLE)*U0/4095;
-	    X_Real_C=(2*X_Real_C/ADCSAMPLE)*U0/4095;
 	    X_Real_V=(2*X_Real_V/ADCSAMPLE)*U0/4095;
+
+	    //getitng average real Voltage from Current to Voltage conv.
 	    X_Imag_C=(2*X_Imag_C/ADCSAMPLE)*U0/4095;
-	    X_Imag_V=X_Imag_V*(-1.0);
+	    X_Real_C=(2*X_Real_C/ADCSAMPLE)*U0/4095;
+
+	    X_Imag_V=X_Imag_V*(-1.0);					//imaginary values are negative
 	    X_Imag_C=X_Imag_C*(-1.0);
+
+	    //getting absolute values
 	    Abs_V=sqrt((X_Imag_V*X_Imag_V)+(X_Real_V*X_Real_V));
 	    Abs_C=sqrt((X_Imag_C*X_Imag_C)+(X_Real_C*X_Real_C));
-        Imp=(Abs_V/Abs_C)*900;
+
+        Imp=Abs_V/(Abs_C/910);					//Abs_C Value divided by Shunt-Resistor = I
+
         busy=0;
         flag=0;
-
-
-
 
 }
 
