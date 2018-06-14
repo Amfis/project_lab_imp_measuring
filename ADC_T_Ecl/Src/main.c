@@ -46,8 +46,6 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#define U0 3
-#define ARM_MATH_CM4
 #include "arm_math.h"
 /* USER CODE END Includes */
 
@@ -55,7 +53,11 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+#define U0 3
+#define ARM_MATH_CM4
+#define DACSAMPLE 32
+#define ADCSAMPLE 320
+#define FREQ 165000 //Frequency for signal
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -63,29 +65,24 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-#define DACSAMPLE 32
-#define ADCSAMPLE 320
-#define FREQ 165000 //Frequency for signal
-
 void Set_DAC_Freq(uint32_t );
 void Sin_Gen(void);
+void calc();
+void DFT();
+/* USER CODE END PFP */
+
+/* USER CODE BEGIN 0 */
 uint16_t NUM_SAMPLES_DAC =DACSAMPLE;
 uint16_t NUM_SAMPLES_ADC =ADCSAMPLE;
 uint8_t no=0;
 uint32_t frequen[5]={10000,25000,50000,75000,100000};
-
-/* USER CODE END PFP */
-
-/* USER CODE BEGIN 0 */
 uint32_t ADC1ConvertedValues[ADCSAMPLE];
 uint16_t Sine_Lut[DACSAMPLE];
 uint16_t  Voltage_val[ADCSAMPLE], Current_val[ADCSAMPLE];
 uint32_t  FFT_Data[ADCSAMPLE];
 float X_Real_V , X_Imag_V,X_Real_C , X_Imag_C,Phase_V,Abs_C,Abs_V;
 float Imp=0,impe_freq[5];
-void calc();
-void DFT();
- volatile int busy=0,flag=0;
+volatile int busy=0,flag=0;
 /* USER CODE END 0 */
 
 /**
@@ -123,9 +120,14 @@ int main(void)
   MX_TIM6_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
+
   /* USER CODE BEGIN 2 */
+
+  /* SETTING UP THE CONDITIONS */
   Sin_Gen();
   Set_DAC_Freq(FREQ);
+
+  /* STARTING HARDWARE COMPONENTS */
   HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_1, (uint32_t*)Sine_Lut, NUM_SAMPLES_DAC, DAC_ALIGN_12B_R);
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
@@ -314,22 +316,22 @@ void DFT()
 
 	     }
 
-	    //getitng average imaginary and reaal Voltage
+	    //getting average imaginary and real Voltage
 	    X_Imag_V=(2*X_Imag_V/ADCSAMPLE)*U0/4095;
 	    X_Real_V=(2*X_Real_V/ADCSAMPLE)*U0/4095;
 
-	    //getitng average real Voltage from Current to Voltage conv.
+	    //getting average real Voltage from Current to Voltage conv.
 	    X_Imag_C=(2*X_Imag_C/ADCSAMPLE)*U0/4095;
 	    X_Real_C=(2*X_Real_C/ADCSAMPLE)*U0/4095;
 
-	    X_Imag_V=X_Imag_V*(-1.0);					//imaginary values are negative
+	    X_Imag_V=X_Imag_V*(-1.0);		//imaginary values are negative
 	    X_Imag_C=X_Imag_C*(-1.0);
 
 	    //getting absolute values
 	    Abs_V=sqrt((X_Imag_V*X_Imag_V)+(X_Real_V*X_Real_V));
 	    Abs_C=sqrt((X_Imag_C*X_Imag_C)+(X_Real_C*X_Real_C));
 
-        Imp=Abs_V/(Abs_C/910);					//Abs_C Value divided by Shunt-Resistor = I
+        Imp=Abs_V/(Abs_C/910);			//Abs_C Value divided by Shunt-Resistor = I
 
         busy=0;
         flag=0;
