@@ -81,7 +81,7 @@ uint16_t Sine_Lut[DACSAMPLE];
 uint16_t  Voltage_val[ADCSAMPLE], Current_val[ADCSAMPLE];
 uint32_t  FFT_Data[ADCSAMPLE];
 float X_Real_V , X_Imag_V,X_Real_C , X_Imag_C,Phase_V,Abs_C,Abs_V;
-float Imp=0,impe_freq[5];
+float Imp, Phase_V, Phase_C, Phase, impe_freq[5];
 volatile int busy=0,flag=0;
 /* USER CODE END 0 */
 
@@ -220,7 +220,7 @@ void Sin_Gen()
 	//gernerate LUT
   	for (int i=0; i< NUM_SAMPLES_DAC; i++)
   	{
-  		Sine_Lut[i] = (0.7*cosf(((2*PI)/NUM_SAMPLES_DAC)*i)+1)*1024;
+  		Sine_Lut[i] = (0.8*cosf(((2*PI)/NUM_SAMPLES_DAC)*i)+1)*682;
   	}
 }
 
@@ -311,8 +311,8 @@ void DFT()
 	     {
 	       X_Real_V+=Voltage_val[n]*cos((2*PI*10*(n))/ADCSAMPLE);
 	       X_Imag_V+=Voltage_val[n]*sin((2*PI*10*(n))/ADCSAMPLE);
-	       X_Real_C+=Current_val[n]*cos((2*PI*10*(n))/ADCSAMPLE);
-	       X_Imag_C+=Current_val[n]*sin((2*PI*10*(n))/ADCSAMPLE);
+	       X_Real_C+=-Current_val[n]*cos((2*PI*10*(n))/ADCSAMPLE);
+	       X_Imag_C+=-Current_val[n]*sin((2*PI*10*(n))/ADCSAMPLE);
 
 	     }
 
@@ -331,6 +331,10 @@ void DFT()
 	    Abs_V=sqrt((X_Imag_V*X_Imag_V)+(X_Real_V*X_Real_V));
 	    Abs_C=sqrt((X_Imag_C*X_Imag_C)+(X_Real_C*X_Real_C));
 
+	    //impedance and phase calculation
+	    Phase_V = atan((X_Imag_V/X_Real_V)*180/PI);
+		Phase_C = atan((X_Imag_C/X_Real_C)*180/PI);
+		Phase = (Phase_V-Phase_C);
         Imp=Abs_V/(Abs_C/910);			//Abs_C Value divided by Shunt-Resistor = I
 
         busy=0;
