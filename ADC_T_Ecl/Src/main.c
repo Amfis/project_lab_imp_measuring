@@ -311,8 +311,8 @@ void DFT()
 	     {
 	       X_Real_V+=Voltage_val[n]*cos((2*PI*10*(n))/ADCSAMPLE);
 	       X_Imag_V+=Voltage_val[n]*sin((2*PI*10*(n))/ADCSAMPLE);
-	       X_Real_C+=-Current_val[n]*cos((2*PI*10*(n))/ADCSAMPLE);
-	       X_Imag_C+=-Current_val[n]*sin((2*PI*10*(n))/ADCSAMPLE);
+	       X_Real_C+=-(Current_val[n]*cos((2*PI*10*(n))/ADCSAMPLE));
+	       X_Imag_C+=-(Current_val[n]*sin((2*PI*10*(n))/ADCSAMPLE));
 
 	     }
 
