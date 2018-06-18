@@ -57,7 +57,7 @@
 #define ARM_MATH_CM4
 #define DACSAMPLE 32
 #define ADCSAMPLE 320
-#define FREQ 165000 //Frequency for signal
+#define FREQ 100000 //Frequency for signal
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -327,15 +327,15 @@ void DFT()
 	    X_Imag_V=X_Imag_V*(-1.0);		//imaginary values are negative
 	    X_Imag_C=X_Imag_C*(-1.0);
 
-	    //getting absolute values
+	    //getting magnitudes
 	    Abs_V=sqrt((X_Imag_V*X_Imag_V)+(X_Real_V*X_Real_V));
 	    Abs_C=sqrt((X_Imag_C*X_Imag_C)+(X_Real_C*X_Real_C));
-
-	    //impedance and phase calculation
-	    Phase_V = atan((X_Imag_V/X_Real_V)*180/PI);
-		Phase_C = atan((X_Imag_C/X_Real_C)*180/PI);
-		Phase = (Phase_V-Phase_C);
         Imp=Abs_V/(Abs_C/910);			//Abs_C Value divided by Shunt-Resistor = I
+
+	    //phase calculations
+	    Phase_V = atan(X_Imag_V/X_Real_V)*180/PI;
+		Phase_C = atan(X_Imag_C/X_Real_C)*180/PI;
+		Phase = (Phase_V-Phase_C);
 
         busy=0;
         flag=0;
